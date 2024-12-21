@@ -16,6 +16,7 @@ model user_model {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   profile       user_profile?
+  
 }
 
 model user_profile {
@@ -26,4 +27,12 @@ model user_profile {
   profile_uri String 
   userId         String           @unique
   user           user_model  @relation(fields: [userId], references: [userId]) // Added ? here
+}
+model refresh_token{
+  tokeId String @id @default(cuid())
+  token String 
+  createdAt DateTime @default(now())
+  expiredAt DateTime
+  userId String @unique 
+  
 }

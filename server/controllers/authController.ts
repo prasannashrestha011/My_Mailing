@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CreateUserDto } from "../Dto/userDtos";
 import { comparePassword, hashPassword } from "../utils/hashing/hash";
 import { createUser, getUser } from "../repositories/userRepository";
+import { refreshAccessToken } from "../utils/jwt/jwt";
 
 export async function registerUser(req:Request<{},{},{details:CreateUserDto}>,res:Response,next:NextFunction){
     try{
@@ -55,6 +56,26 @@ export async function authenticateUser(req:Request<{},{},{username:string,passwo
             return 
         }
     res.status(200).json({"accountDetails":foundUser})
+    }catch(err){
+        next()
+    }
+}
+export async function refreshAccessTokenHandler(req:Request<{},{},{userId:string,refreshToken:string}>,
+    res:Response,
+    next:NextFunction
+){
+    try{
+      const {userId,refreshToken}=req.body
+      if(!userId || !refreshToken){
+          res.status(400).json({err:"Insufficent details "})
+          return
+      }
+      const accessToken=await refreshAccessToken(refreshToken)
+      if(!accessToken.success){
+        res.status(400).json({err:accessToken.message})
+        return
+      }
+      res.status(200).json({newAccessToken:accessToken.message})
     }catch(err){
         next()
     }

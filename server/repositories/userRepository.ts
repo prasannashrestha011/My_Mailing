@@ -59,3 +59,11 @@ export async function getUser(username:string){
         return null
     }
 }
+export async function getRefreshToken(userId:string){
+    const foundToken=await prisma.refresh_token.findUnique({
+        where:{
+            userId
+        }
+    })
+    return foundToken
+}
