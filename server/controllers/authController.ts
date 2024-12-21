@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CreateUserDto } from "../Dto/userDtos";
 import { comparePassword, hashPassword } from "../utils/hashing/hash";
 import { createUser, getUser } from "../repositories/userRepository";
-import { refreshAccessToken } from "../utils/jwt/jwt";
+import { generateJwt, generateRefreshToken, refreshAccessToken } from "../utils/jwt/jwt";
 
 export async function registerUser(req:Request<{},{},{details:CreateUserDto}>,res:Response,next:NextFunction){
     try{
@@ -55,6 +55,25 @@ export async function authenticateUser(req:Request<{},{},{username:string,passwo
             res.status(401).json({err:"Incorrect password"})
             return 
         }
+        const jwtToken=await generateJwt(foundUser.userId)
+        const refreshToken=await generateRefreshToken(foundUser.userId)
+        if(!refreshToken.success){
+            throw new Error(refreshToken.message)
+        }
+        console.log(jwtToken)
+        console.log(refreshToken)
+    res.cookie('accessToken',jwtToken,{
+        httpOnly:true,
+        secure:true,
+        sameSite:'lax',
+        maxAge:15*60*1000,
+    })
+    res.cookie('refreshToken',refreshToken.message,{
+        httpOnly:true,
+        secure:true,
+        sameSite:'lax',
+        maxAge:7*60*60*1000
+    })
     res.status(200).json({"accountDetails":foundUser})
     }catch(err){
         next()

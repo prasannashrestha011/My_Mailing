@@ -53,7 +53,11 @@ export async function getUser(username:string){
         if(!foundUser){
             throw new Error("user not found")
         }
-        return foundUser ? serializeData(foundUser) : null;
+        const serializedUser={
+            ...foundUser,
+            profile:serializeData(foundUser.profile),
+        }
+        return serializedUser;
     }catch(err){
         console.log(err)
         return null

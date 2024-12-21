@@ -1,60 +1,73 @@
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 import { getRefreshToken } from '../../repositories/userRepository'
+import { checkJwtExpiration } from './jwtMethods'
 
-const secretKey=process.env.JWT_SECRET
+const jwtSecretKey=process.env.JWT_SECRET
 const refreshKey=process.env.REFRESH_TOKEN_SECRET
 
 const prisma= new PrismaClient()
 
 
 export async function generateJwt(userId:string):Promise<string |null>{
-    if(!secretKey){
+    if(!jwtSecretKey){
         console.log("jwt secret not provided")
         return null
     }
     const payload={
         userId
     }
-    const token=jwt.sign(payload,secretKey,{expiresIn:"1h"})
+    const token=jwt.sign(payload,jwtSecretKey,{expiresIn:"1h"})
     return token
 }
-export async function generateRefreshToken(userId:string):Promise<string | null>{
-    if(!userId || !refreshKey){
-        console.log("Either username or refresh key is unavailable")
-        return null
-    }
-    const payload={userId}
-    const refreshToken= jwt.sign(payload,refreshKey,{expiresIn:'30d'})
+export async function generateRefreshToken(userId:string):Promise<{success:boolean,message:string}>{
+    try{
+      if(!userId || !refreshKey){
+        throw new Error("Either userId or refreshKey is unavailable")
+      }
+      //setting expiry time of 7 days
+      const  expiredAt=new Date()
+      expiredAt.setDate(expiredAt.getDate()+7)
 
-    const expiredAt=new Date()
-    expiredAt.setDate(expiredAt.getDate()+30)
-    await prisma.refresh_token.create({
-        data:{
-            token:refreshToken,
-            expiredAt,
+      const payload={userId}
+      const refreshToken= jwt.sign(payload,refreshKey,{expiresIn:'7d'})
+      if(!refreshToken){
+        throw new Error("Unable to generate refresh token");
+      }
+      //storing refresh token in db for validation
+      await prisma.refresh_token.upsert({
+        where:{
             userId,
+        },
+        create:{
+            userId,
+            expiredAt,
+            token:refreshToken
+        },
+        update:{
+            token:refreshToken,
+            expiredAt
         }
-    })
-    return refreshToken;
-}
-export async function verifyJwt(token:string){
-    if(!token || !secretKey){
-        console.log("token or secret key not provided")
-        return 
+      })
+      return {success:true,message:refreshToken}
+    }catch(err){
+        console.log(err)
+        let errMessage=err as Error
+        return {success:false,message:errMessage.message??"Unknow error occured"}
     }
-     jwt.verify(token,secretKey,(err,decoded)=>{
-        if(err){
-            if(err.name=="TokenExpiredError"){
-                console.log("token expired");
-                return null
-            }
-            console.log("Unknow error occured while decoding the token")
-            return
-        }
-        return decoded
-    })
 }
+export async function verifyJwt(token:string):Promise<{success:boolean,statusCode:number,message:string}>{
+    if(!token || !jwtSecretKey){
+        return {success:false,statusCode:403,message:"token or secret key not provided"}
+    }
+     const decodedToken:any=jwt.verify(token,jwtSecretKey)
+     console.log(decodedToken)
+     const isTokenAlive=checkJwtExpiration(decodedToken.exp)
+     if(!isTokenAlive) return {success:false,statusCode:401,message:"token expired"}
+
+     return {success:true,statusCode:200,message:"token is alive"}
+}
+
 export async function verifyRefreshToken(refreshToken:string):Promise<{success:boolean,message:string}>{
     try{
     if(!refreshToken || !refreshKey){
