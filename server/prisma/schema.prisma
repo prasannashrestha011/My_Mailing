@@ -19,7 +19,7 @@ model user_model {
 }
 
 model user_profile {
-  profileId      String           @id @default(uuid())
+  profileId      String           @id @default(cuid())
   fullName       String
   contactNumber  BigInt       @unique
   dateOfBirth    String

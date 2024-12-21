@@ -3,11 +3,11 @@ export interface CreateUserDto{
     username:string 
     password:string 
     personalDetails:{
-        profileId:string
+        profileId?:string
         fullName:string 
         contactNumber:number 
         dateOfBirth:string 
-        profile_uri:string 
-        userId:string
+        profile_uri?:string 
+        userId?:string
     }
 }
