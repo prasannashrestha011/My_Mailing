@@ -97,6 +97,7 @@ export async function verifyRefreshToken(refreshToken:string):Promise<{success:b
 }
 export async function refreshAccessToken(refreshToken:string):Promise<{success:boolean,message:string}>{
     try{
+        //verifying the refresh token before making new access token
         const tokenVerification=await verifyRefreshToken(refreshToken)
         if(!tokenVerification.success){
             return {success:false,message:tokenVerification.message}

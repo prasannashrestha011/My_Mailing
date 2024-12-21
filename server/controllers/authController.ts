@@ -85,6 +85,7 @@ export async function refreshAccessTokenHandler(req:Request<{},{},{userId:string
 ){
     try{
       const {userId,refreshToken}=req.body
+ 
       if(!userId || !refreshToken){
           res.status(400).json({err:"Insufficent details "})
           return
@@ -94,6 +95,12 @@ export async function refreshAccessTokenHandler(req:Request<{},{},{userId:string
         res.status(400).json({err:accessToken.message})
         return
       }
+      res.cookie('accessToken',accessToken.message,{
+        httpOnly:true,
+        sameSite:'lax',
+        maxAge:7*60*60*1000
+      })
+
       res.status(200).json({newAccessToken:accessToken.message})
     }catch(err){
         next()
