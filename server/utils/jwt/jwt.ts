@@ -8,7 +8,7 @@ const refreshKey=process.env.REFRESH_TOKEN_SECRET
 
 const prisma= new PrismaClient()
 
-
+// for generating access and refresh token
 export async function generateJwt(userId:string):Promise<string |null>{
     if(!jwtSecretKey){
         console.log("jwt secret not provided")
@@ -56,6 +56,7 @@ export async function generateRefreshToken(userId:string):Promise<{success:boole
         return {success:false,message:errMessage.message??"Unknow error occured"}
     }
 }
+
 export async function verifyJwt(token:string):Promise<{success:boolean,statusCode:number,message:string}>{
     if(!token || !jwtSecretKey){
         return {success:false,statusCode:403,message:"token or secret key not provided"}
@@ -95,6 +96,8 @@ export async function verifyRefreshToken(refreshToken:string):Promise<{success:b
         return {success:false,message:"Unknow error occured"}
     }
 }
+
+//validating refresh token and get new access token
 export async function refreshAccessToken(refreshToken:string):Promise<{success:boolean,message:string}>{
     try{
         //verifying the refresh token before making new access token

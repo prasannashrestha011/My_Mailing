@@ -100,8 +100,6 @@ export async function refreshAccessTokenHandler(req:Request<{},{},{userId:string
         sameSite:'lax',
         maxAge:7*60*60*1000
       })
-
-      res.status(200).json({newAccessToken:accessToken.message})
     }catch(err){
         next()
     }
