@@ -3,12 +3,14 @@ import { Button, IconButton, InputAdornment } from '@mui/material'
 import TextField from '@mui/material/TextField'
 import React, { ChangeEvent, FormEvent, useState } from 'react'
 import { Visibility, VisibilityOff,MarkAsUnreadSharp } from '@mui/icons-material';
-interface formFields{
-    username:string
-    password:string
-}
+
+import { loginDetail } from './interfaces';
+import { submitLoginDetails } from './action';
+import { useRouter } from 'next/navigation';
+
 const LoginForm = () => {
-    const [form_fields,setFormFields]=useState<formFields>({username:"",password:""})
+    const [form_fields,setFormFields]=useState<loginDetail>({username:"",password:""})
+    const route=useRouter()
     const [isPasswordVisible,setIsPasswordVisible]=useState<boolean>(false)
     const handleFormData=(e:ChangeEvent<HTMLInputElement>)=>{
         const {name,value}=e.target
@@ -17,13 +19,19 @@ const LoginForm = () => {
             [name]:value
         }))
     }
-    const handleFormSubmission=(e:FormEvent)=>{
+    const handleFormSubmission=async(e:FormEvent)=>{
         e.preventDefault()
-        console.log(form_fields)
+       const response=await submitLoginDetails(form_fields)
+       if(response.success){
+        route.replace('/')
+        
+       }
+        console.log(response)
     }
     const togglePasswordFieldVisibility=()=>{
         setIsPasswordVisible(!isPasswordVisible)
     }
+  
   return (
     <div className='p-2 min-h-screen '>
         <header className='text-2xl w-fit mx-auto font-mono flex gap-2 cursor-pointer'>

@@ -1,6 +1,6 @@
 export const corsOptions={
-    origin:"http://localhost:8080",
+    origin:"http://localhost:3000",
     methods:"GET,POST,PUT,DELETE",
     allowHeaders:'Content-Type,Authorization',
-    creadentials:true
+    credentials:true
 }
