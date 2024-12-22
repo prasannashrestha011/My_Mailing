@@ -33,14 +33,15 @@ const LoginForm = () => {
     }
   
   return (
-    <div className='p-2 min-h-screen '>
+    <div className='p-2 min-h-screen relative bg-[url("/wallpapers/postmate.png")] bg-contain bg-no-repeat'>
         <header className='text-2xl w-fit mx-auto font-mono flex gap-2 cursor-pointer'>
         <MarkAsUnreadSharp/>
         <span>Post mate</span>
         </header>
-     <form onSubmit={handleFormSubmission} className=' h-96 flex   flex-col justify-center items-center '>
+    
+     <form onSubmit={handleFormSubmission} className=' h-96 flex  flex-col justify-center items-center '>
  
-        <div className='flex flex-col gap-4 h-72 justify-center items-center'>
+        <div className='flex flex-col gap-4 h-72 justify-center items-center '>
       
             <TextField id="standard-basic" 
             label="Username" 
@@ -75,7 +76,7 @@ const LoginForm = () => {
         
              </TextField>
              
-           <div className='flex flex-col justify-end items-end w-full'>
+           <div className='flex flex-col justify-end items-end w-full font-semibold'>
            <a 
             className=' 
      

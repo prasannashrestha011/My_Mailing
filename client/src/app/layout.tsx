@@ -11,6 +11,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>Post mate</title>
+        <link rel="icon" href="/web.ico"/>
       </head>
       <body
      
